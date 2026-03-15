@@ -8,9 +8,56 @@ from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import bigquery
 import pandas as pd
 
+def ingest_all_csv_to_bq():
+    from google.cloud import bigquery
+    import os
+    import pandas as pd
+    
+    JSON_PATH = '/opt/airflow/google_key.json'
+    RAW_DATA_DIR = '/opt/airflow/raw_data/'
+    PROJECT_ID = 'ae-project-487716'
+    DATASET_ID = 'raw_vouchers'
+    
+    client = bigquery.Client.from_service_account_json(JSON_PATH)
+
+    files_to_load = {
+        'branch.csv': 'branch',
+        'customer.csv': 'customer',
+        'voucher_sales.csv': 'voucher_sales',
+        'voucher_redemption.csv': 'voucher_redemption',
+        'voucher_history.csv': 'voucher_history',
+        'promocode_discount.csv': 'promocode_discount',
+        'bucket_sales.csv': 'bucket_sales',
+        'voucher_code.csv': 'voucher_code'
+    }
+
+    for file_name, table_name in files_to_load.items():
+        file_path = os.path.join(RAW_DATA_DIR, file_name)
+        table_id = f"{PROJECT_ID}.{DATASET_ID}.{table_name}"
+        
+        if os.path.exists(file_path):
+            try:
+                # 1. ใช้ pandas อ่านไฟล์ CSV (Pandas จะจัดการเรื่อง Header ให้เองอัตโนมัติ)
+                df_temp = pd.read_csv(file_path)
+                
+                # 2. ตั้งค่าการ Load ข้อมูล
+                job_config = bigquery.LoadJobConfig(
+                    write_disposition="WRITE_TRUNCATE", # ล้างข้อมูลเก่าและเขียนใหม่ให้ซิงค์ล่าสุด
+                )
+
+                # 3. ส่งข้อมูลจาก DataFrame ขึ้นไปยัง BigQuery
+                load_job = client.load_table_from_dataframe(df_temp, table_id, job_config=job_config)
+                load_job.result() # รอจนกว่าจะทำงานเสร็จ
+                
+                print(f"✅ Successfully updated table: {table_id} from {file_name}")
+            except Exception as e:
+                print(f"❌ Error uploading {file_name}: {e}")
+        else:
+            print(f"⚠️ Warning: File {file_name} not found in {RAW_DATA_DIR}")
+
 def upload_to_gsheets():
     # 1. Key Path and spreadsheet id 
-    JSON_PATH = '/opt/airflow/gกนแาoogle_key.json' #path
+    JSON_PATH = '/opt/airflow/google_key.json' #path
     SPREADSHEET_ID = '1RJ5LWA3hi0MFIMhfRIZONeTQ0qTvjDAPqUdRr3kOKKA' #spreadsheet id
     SHEET_NAME = 'voucher_data' #tab name
 
@@ -72,6 +119,12 @@ with DAG(
     tags=['dbt', 'vouchers'],
 ) as dag:
 
+# Task 0: Ingest all CSVs to BigQuery
+    ingest_data = PythonOperator(
+        task_id='ingest_all_csv_to_bq',
+        python_callable=ingest_all_csv_to_bq,
+    )
+
 # Task 1: Execute dbt run
     run_models = BashOperator(
         task_id='dbt_run',
@@ -94,4 +147,4 @@ with DAG(
     )
 
     # Set task dependencies: run models first, then perform tests
-    run_models >> test_models >> upload_sheets
+    ingest_data >> run_models >> test_models >> upload_sheets
