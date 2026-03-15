@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: fct_voucher_sales_performance
+    description: "fact table summarizing voucher sales performance, joining redemption, redeemed customer data."
+    columns:
+      - name: redeem_order_id
+        description: "Primary key of the voucher redemption record."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: used_transaction_id
+        description: "Transaction ID from sales system. Will be NULL if the voucher was redeemed but not yet used."
+        data_tests:
+          - relationships:
+              to: ref('stg_voucher_sales')
+              field: transaction_id
+
+      - name: redeem_voucher_code
+        description: "The specific voucher code that was redeemed. This field is mandatory for redemption analysis."
+        data_tests:
+          - not_null

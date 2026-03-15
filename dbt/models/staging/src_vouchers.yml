@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: raw_vouchers_source         
+    database: ae-project-487716       
+    schema: raw_vouchers              
+    tables:
+      - name: branch
+      - name: bucket_sales
+      - name: customer
+      - name: promocode_discount
+      - name: voucher
+      - name: voucher_history
+      - name: voucher_redemption
+      - name: voucher_sales

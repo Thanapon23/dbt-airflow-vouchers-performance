@@ -1,0 +1,11 @@
+voucher_profile:
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: ae-project-487716
+      dataset: raw_vouchers
+      threads: 4
+      keyfile: /opt/airflow/google_key.json
+      location: asia-southeast1
+  target: dev
