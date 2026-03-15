@@ -37,17 +37,17 @@ def ingest_all_csv_to_bq():
         
         if os.path.exists(file_path):
             try:
-                # 1. ใช้ pandas อ่านไฟล์ CSV (Pandas จะจัดการเรื่อง Header ให้เองอัตโนมัติ)
+                # 1. use pandas to handle with Header problems
                 df_temp = pd.read_csv(file_path)
                 
-                # 2. ตั้งค่าการ Load ข้อมูล
+                # 2. Load config
                 job_config = bigquery.LoadJobConfig(
-                    write_disposition="WRITE_TRUNCATE", # ล้างข้อมูลเก่าและเขียนใหม่ให้ซิงค์ล่าสุด
+                    write_disposition="WRITE_TRUNCATE", # update everytime
                 )
 
-                # 3. ส่งข้อมูลจาก DataFrame ขึ้นไปยัง BigQuery
+                # 3. Sending data from DataFrame to BigQuery
                 load_job = client.load_table_from_dataframe(df_temp, table_id, job_config=job_config)
-                load_job.result() # รอจนกว่าจะทำงานเสร็จ
+                load_job.result() 
                 
                 print(f"✅ Successfully updated table: {table_id} from {file_name}")
             except Exception as e:
