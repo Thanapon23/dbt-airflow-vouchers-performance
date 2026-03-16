@@ -125,6 +125,7 @@ services:
     command: api-server
     ports:
       - "8080:8080"
+      - "8081:8081"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/version"]
       interval: 30s
