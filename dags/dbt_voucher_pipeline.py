@@ -66,7 +66,7 @@ def upload_to_gsheets():
     creds = ServiceAccountCredentials.from_json_keyfile_name(JSON_PATH, scope)
     client = gspread.authorize(creds)
     
-    # 3. ingest data from BigQuery
+    # 3. Query fct model from BigQuery
     bq_client = bigquery.Client.from_service_account_json(JSON_PATH)
     query = "SELECT * FROM `ae-project-487716.raw_vouchers.fct_voucher_sales_performance`"
     df = bq_client.query(query).to_dataframe()
@@ -119,27 +119,27 @@ with DAG(
     tags=['dbt', 'vouchers'],
 ) as dag:
 
-# Task 0: Ingest all CSVs to BigQuery
+# Task 1: Ingest all CSVs to BigQuery
     ingest_data = PythonOperator(
         task_id='ingest_all_csv_to_bq',
         python_callable=ingest_all_csv_to_bq,
     )
 
-# Task 1: Execute dbt run
+# Task 2: Execute dbt run
     run_models = BashOperator(
         task_id='dbt_run',
         #Define the dbt executable path and navigate into the project directory
         bash_command='cd /opt/airflow/dbt && dbt run --profiles-dir .',
     )
 
-    # Task 2: Execute dbt test
+# Task 3: Execute dbt test
     test_models = BashOperator(
         task_id='dbt_test',
         bash_command='cd /opt/airflow/dbt && dbt test --profiles-dir .',
         execution_timeout=timedelta(minutes=5),
     )
 
-    # Task 3: Upload to Google Sheets
+# Task 4: Upload to Google Sheets
     upload_sheets = PythonOperator(
         task_id='upload_to_gsheets',
         python_callable=upload_to_gsheets,

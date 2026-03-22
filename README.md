@@ -26,7 +26,7 @@ The Marketing team requires daily refreshed data on voucher performance to suppo
 
 The entire system operates within a Docker environment, with Airflow orchestrating every task.
 
-![pipeline_architecture.png](image/pipeline_architecture.png)
+<img src="image/pipeline_architecture.png" alt="Pipeline Architecture" width="350">
 
 ---
 
@@ -34,7 +34,8 @@ The entire system operates within a Docker environment, with Airflow orchestrati
 
 The DAG `vouchers_transformation_pipeline` runs daily and executes 4 tasks in sequence:
 
-![execution_order.png](image/execution_order.png)
+<img src="image/execution_order.png" alt="Execution Order" width="350">
+
 
 ---
 
@@ -135,11 +136,11 @@ docker-compose up -d --build
     - **Airflow UI:** `http://localhost:8080` (Pipeline Management)
         - Trigger DAG: `http://localhost:8080` → Dags → vouchers_transformation_pipeline → Trigger.
         
-        ![airflow_interface.png](image/airflow_interface.png)
-        
+            <img src="image/airflow_interface.png" alt="Airflow interface" width="300">
+
     - **dbt Documentation:** `http://localhost:8081` (Data Lineage & Catalog)
     
-    ![lineage_graph.png](image/lineage_graph.png)
+    <img src="image/lineage_graph.png" alt="Lineage Graph" width="500">
     
 
 ## 📊 Output
@@ -147,3 +148,5 @@ docker-compose up -d --build
 Processed data is automatically pushed to Google Sheets daily based on the defined schedule.
 
 - **Google Sheet Link:** [https://docs.google.com/spreadsheets/d/1RJ5LWA3hi0MFIMhfRIZONeTQ0qTvjDAPqUdRr3kOKKA/edit?usp=sharing](https://docs.google.com/spreadsheets/d/1RJ5LWA3hi0MFIMhfRIZONeTQ0qTvjDAPqUdRr3kOKKA/edit?usp=sharing)
+
+---
