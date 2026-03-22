@@ -26,7 +26,7 @@ The Marketing team requires daily refreshed data on voucher performance to suppo
 
 The entire system operates within a Docker environment, with Airflow orchestrating every task.
 
-<img src="image/pipeline_architecture.png" alt="Pipeline Architecture" width="350">
+<img src="image/pipeline_architecture.png" alt="Pipeline Architecture" width="450">
 
 ---
 
@@ -34,7 +34,7 @@ The entire system operates within a Docker environment, with Airflow orchestrati
 
 The DAG `vouchers_transformation_pipeline` runs daily and executes 4 tasks in sequence:
 
-<img src="image/execution_order.png" alt="Execution Order" width="350">
+<img src="image/execution_order.png" alt="Execution Order" width="450">
 
 
 ---
